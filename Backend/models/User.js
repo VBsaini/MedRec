@@ -10,21 +10,13 @@ const userSchema = new mongoose.Schema({
   height: { type: Number, required: true },
   weight: { type: Number, required: true },
   medical_history: {
-    past_illnesses: { type: String, required: true },
-    surgeries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Surgery" }],
-    medications: { type: String, required: true },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MedicalHistory",
   },
-  allergies: {
-    allergens: { type: String, required: true },
-    reactions: { type: String, required: true },
-    severity: { type: String, required: true },
-  },
-  family_history: {
-    relationship: { type: String, required: true },
-    conditions: { type: String, required: true },
-    medications: { type: String, required: true },
-    surgeries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Surgery" }],
-  },
+  allergies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Allergy" }],
+  family_history: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "FamilyHistory" },
+  ],
   diabetic: {
     status: { type: Boolean, required: true },
     type: { type: String, required: true },
@@ -43,7 +35,10 @@ const userSchema = new mongoose.Schema({
     since: { type: Date, required: true },
     medications: { type: String, required: true },
   },
-  emergency_contact: { type: String, required: true },
+  emergency_contact: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "EmergencyContact",
+  },
   phone_number: { type: String, required: true },
   misc: { type: String, required: true },
   email: { type: String, required: true, unique: true },
