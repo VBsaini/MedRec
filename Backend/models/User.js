@@ -1,48 +1,48 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  Id: { type: String, required: true, unique: true },
-  card_Id: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-  age: { type: Number, required: true },
-  gender: { type: String, required: true },
-  blood_group: { type: String, required: true },
-  height: { type: Number, required: true },
-  weight: { type: Number, required: true },
-  medical_history: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "MedicalHistory",
-  },
+  Id: { type: String, unique: true },
+  card_Id: { type: String, unique: true },
+  name: { type: String },
+  age: { type: Number },
+  gender: { type: String },
+  blood_group: { type: String },
+  height: { type: Number },
+  weight: { type: Number },
+  medical_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MedicalHistory",
+    },
+  ],
   allergies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Allergy" }],
   family_history: [
     { type: mongoose.Schema.Types.ObjectId, ref: "FamilyHistory" },
   ],
   diabetic: {
-    status: { type: Boolean, required: true },
-    type: { type: String, required: true },
-    since: { type: Date, required: true },
+    status: { type: Boolean },
+    type: { type: String },
+    since: { type: Date },
   },
   heart: {
-    status: { type: Boolean, required: true },
-    details: { type: String, required: true },
+    status: { type: Boolean },
+    details: { type: String },
     surgeries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Surgery" }],
-    medications: { type: String, required: true },
-    since: { type: Date, required: true },
+    medications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Medication" }],
+    since: { type: Date },
   },
   mental_health: {
-    status: { type: Boolean, required: true },
-    details: { type: String, required: true },
-    since: { type: Date, required: true },
-    medications: { type: String, required: true },
+    status: { type: Boolean },
+    details: { type: String },
+    since: { type: Date },
+    medications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Medication" }],
   },
-  emergency_contact: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "EmergencyContact",
-  },
-  phone_number: { type: String, required: true },
-  misc: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  emergency_contact: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EmergencyContact",
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 
