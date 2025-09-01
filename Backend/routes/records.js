@@ -8,6 +8,82 @@ const Surgery = require("../models/Surgery");
 const Medication = require("../models/Medication");
 const router = express.Router();
 
+// Get all medical history for a user
+router.get("/medical-history/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("medical_history");
+    res.json(user?.medical_history || []);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get all allergies for a user
+router.get("/allergy/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("allergies");
+    res.json(user?.allergies || []);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get all family history for a user
+router.get("/family-history/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("family_history");
+    res.json(user?.family_history || []);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get all emergency contacts for a user
+router.get("/emergency-contact/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("emergency_contact");
+    res.json(user?.emergency_contact || []);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get all surgeries for a user (from heart.surgeries)
+router.get("/surgery/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).populate("heart.surgeries");
+    res.json(user?.heart?.surgeries || []);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get all medications for a user (from heart.medications and mental_health.medications)
+router.get("/medication/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId)
+      .populate("heart.medications")
+      .populate("mental_health.medications");
+    // Combine and deduplicate medications
+    const heartMeds = user?.heart?.medications || [];
+    const mentalMeds = user?.mental_health?.medications || [];
+    const allMeds = [...heartMeds, ...mentalMeds];
+    // Remove duplicates by _id
+    const uniqueMeds = Array.from(
+      new Map(allMeds.map((m) => [String(m._id), m])).values()
+    );
+    res.json(uniqueMeds);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
 // Add or update user profile (protected route)
 router.post("/user/:id/profile", async (req, res) => {
   try {

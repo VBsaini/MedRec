@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -10,6 +11,14 @@ const authRoutes = require("./routes/auth");
 const recordsRoutes = require("./routes/records");
 
 connectDB();
+
+// Enable CORS for all routes and origins (customize origin as needed)
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);

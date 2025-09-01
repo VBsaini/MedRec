@@ -1,8 +1,11 @@
 const mongoose = require("mongoose");
-
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
+const uri = process.env.DB_URL;
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/medrec", {
+    await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
