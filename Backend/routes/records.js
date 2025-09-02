@@ -7,6 +7,25 @@ const EmergencyContact = require("../models/EmergencyContact");
 const Surgery = require("../models/Surgery");
 const Medication = require("../models/Medication");
 const router = express.Router();
+// Get all available surgeries (for dropdown)
+router.get("/all-surgeries", async (req, res) => {
+  try {
+    const surgeries = await Surgery.find({});
+    res.json(surgeries);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Get all available medications (for dropdown)
+router.get("/all-medications", async (req, res) => {
+  try {
+    const medications = await Medication.find({});
+    res.json(medications);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 // Get all medical history for a user
 router.get("/medical-history/:userId", async (req, res) => {
