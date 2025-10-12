@@ -1,0 +1,284 @@
+{
+  "users": [
+    {
+      "name": "Aakash Kamal",
+      "email": "aakash.kamal@email.com",
+      "alias": "aakash_k",
+      "card_Id": "MED001",
+      "age": 28,
+      "gender": "Male",
+      "blood_group": "A+",
+      "height": 175,
+      "weight": 72,
+      "password": "password123",
+      "diabetic": {
+        "status": false
+      },
+      "heart": {
+        "status": false
+      },
+      "mental_health": {
+        "status": false
+      }
+    },
+    {
+      "name": "Himanshu Tiwari",
+      "email": "himanshu.tiwari@email.com",
+      "alias": "himanshu_t",
+      "card_Id": "MED002",
+      "age": 25,
+      "gender": "Male",
+      "blood_group": "B+",
+      "height": 180,
+      "weight": 78,
+      "password": "secure456",
+      "diabetic": {
+        "status": false
+      },
+      "heart": {
+        "status": false
+      },
+      "mental_health": {
+        "status": false
+      }
+    },
+    {
+      "name": "Vaibhav Saini",
+      "email": "vaibhav.saini@email.com",
+      "alias": "vaibhav_s",
+      "card_Id": "MED003",
+      "age": 30,
+      "gender": "Male",
+      "blood_group": "O+",
+      "height": 170,
+      "weight": 68,
+      "password": "mypass789",
+      "diabetic": {
+        "status": true,
+        "type": "Type 2",
+        "since": "2023-01-15"
+      },
+      "heart": {
+        "status": false
+      },
+      "mental_health": {
+        "status": true,
+        "details": "Mild depression following major life changes",
+        "since": "2023-02-01"
+      }
+    }
+  ],
+  "medications": [
+    {
+      "name": "Metformin",
+      "dosage": "500mg",
+      "frequency": "Twice daily",
+      "prescribedBy": "Dr. Sharma",
+      "prescribedFor": "Type 2 Diabetes"
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "10mg",
+      "frequency": "Once daily",
+      "prescribedBy": "Dr. Patel",
+      "prescribedFor": "Hypertension"
+    },
+    {
+      "name": "Aspirin",
+      "dosage": "75mg",
+      "frequency": "Once daily",
+      "prescribedBy": "Dr. Kumar",
+      "prescribedFor": "Heart Disease Prevention"
+    },
+    {
+      "name": "Albuterol",
+      "dosage": "90mcg",
+      "frequency": "As needed",
+      "prescribedBy": "Dr. Singh",
+      "prescribedFor": "Asthma"
+    },
+    {
+      "name": "Sertraline",
+      "dosage": "50mg",
+      "frequency": "Once daily",
+      "prescribedBy": "Dr. Gupta",
+      "prescribedFor": "Depression"
+    },
+    {
+      "name": "Atorvastatin",
+      "dosage": "20mg",
+      "frequency": "Once daily",
+      "prescribedBy": "Dr. Verma",
+      "prescribedFor": "High Cholesterol"
+    }
+  ],
+  "surgeries": [
+    {
+      "patientName": "Aakash Kamal",
+      "hospitalName": "Apollo Hospital Delhi",
+      "doctorName": "Dr. Rajesh Khanna",
+      "surgeryType": "Appendectomy",
+      "surgeryDate": "2022-05-15",
+      "details": "Emergency laparoscopic appendectomy due to acute appendicitis",
+      "recordNumber": "APL2022051501"
+    },
+    {
+      "patientName": "Himanshu Tiwari",
+      "hospitalName": "AIIMS New Delhi",
+      "doctorName": "Dr. Priya Sharma",
+      "surgeryType": "Arthroscopic Knee Surgery",
+      "surgeryDate": "2023-01-20",
+      "details": "Arthroscopic meniscus repair for sports injury",
+      "recordNumber": "AII2023012001"
+    },
+    {
+      "patientName": "Vaibhav Saini",
+      "hospitalName": "Fortis Hospital Gurgaon",
+      "doctorName": "Dr. Amit Singh",
+      "surgeryType": "Gallbladder Removal",
+      "surgeryDate": "2022-09-10",
+      "details": "Laparoscopic cholecystectomy for gallstones",
+      "recordNumber": "FOR2022091001"
+    }
+  ],
+  "allergies": [
+    {
+      "allergens": "Peanuts",
+      "reactions": "Hives, swelling, difficulty breathing",
+      "severity": "Severe"
+    },
+    {
+      "allergens": "Penicillin",
+      "reactions": "Skin rash, itching",
+      "severity": "Moderate"
+    },
+    {
+      "allergens": "Dust mites",
+      "reactions": "Sneezing, runny nose, watery eyes",
+      "severity": "Mild"
+    },
+    {
+      "allergens": "Shellfish",
+      "reactions": "Nausea, vomiting, diarrhea",
+      "severity": "Moderate"
+    },
+    {
+      "allergens": "Latex",
+      "reactions": "Skin irritation, contact dermatitis",
+      "severity": "Mild"
+    },
+    {
+      "allergens": "Sulfa drugs",
+      "reactions": "Fever, rash, joint pain",
+      "severity": "Severe"
+    }
+  ],
+  "emergencyContacts": [
+    {
+      "name": "Priya Kamal",
+      "phone_number": "+91-9876543210",
+      "relationship": "Wife"
+    },
+    {
+      "name": "Rajesh Kamal",
+      "phone_number": "+91-9876543211",
+      "relationship": "Father"
+    },
+    {
+      "name": "Sunita Tiwari",
+      "phone_number": "+91-9876543212",
+      "relationship": "Mother"
+    },
+    {
+      "name": "Vikash Tiwari",
+      "phone_number": "+91-9876543213",
+      "relationship": "Brother"
+    },
+    {
+      "name": "Kavita Saini",
+      "phone_number": "+91-9876543214",
+      "relationship": "Mother"
+    },
+    {
+      "name": "Rohit Saini",
+      "phone_number": "+91-9876543215",
+      "relationship": "Brother"
+    }
+  ],
+  "familyHistory": [
+    {
+      "relationship": "Father",
+      "conditions": "Type 2 Diabetes, Hypertension"
+    },
+    {
+      "relationship": "Mother",
+      "conditions": "Breast Cancer (survived), High Cholesterol"
+    },
+    {
+      "relationship": "Grandfather (Paternal)",
+      "conditions": "Heart Disease, Stroke"
+    },
+    {
+      "relationship": "Grandmother (Maternal)",
+      "conditions": "Osteoporosis, Arthritis"
+    }
+  ],
+  "medicalHistory": [
+    {
+      "user": "Aakash Kamal",
+      "past_illnesses": "Appendicitis (2022), Childhood Asthma"
+    },
+    {
+      "user": "Himanshu Tiwari",
+      "past_illnesses": "Sports-related knee injury (2023), Seasonal allergies"
+    },
+    {
+      "user": "Vaibhav Saini",
+      "past_illnesses": "Gallstones (2022), Depression episode (2023)"
+    }
+  ],
+  "reports": [
+    {
+      "user": "Aakash Kamal",
+      "title": "Annual Health Checkup 2024",
+      "description": "Complete blood work and physical examination results",
+      "summary": "Overall health is good. Cholesterol levels slightly elevated. Recommend dietary changes.",
+      "date": "2024-03-15"
+    },
+    {
+      "user": "Aakash Kamal",
+      "title": "Post-Surgery Follow-up",
+      "description": "Follow-up examination after appendectomy",
+      "summary": "Surgical site healing well. No complications observed. Cleared for normal activities.",
+      "date": "2022-06-15"
+    },
+    {
+      "user": "Himanshu Tiwari",
+      "title": "Knee MRI Results",
+      "description": "MRI scan results showing meniscus tear",
+      "summary": "Meniscus tear confirmed. Recommended arthroscopic surgery for optimal recovery.",
+      "date": "2022-12-20"
+    },
+    {
+      "user": "Himanshu Tiwari",
+      "title": "Sports Medicine Consultation",
+      "description": "Consultation regarding return to sports activities",
+      "summary": "Cleared for gradual return to sports. Physical therapy recommended for 6 weeks.",
+      "date": "2023-03-01"
+    },
+    {
+      "user": "Vaibhav Saini",
+      "title": "Diabetes Management Report",
+      "description": "Quarterly diabetes monitoring and HbA1c results",
+      "summary": "HbA1c levels within target range. Current medication regimen effective.",
+      "date": "2024-01-10"
+    },
+    {
+      "user": "Vaibhav Saini",
+      "title": "Mental Health Assessment",
+      "description": "Psychological evaluation and treatment plan",
+      "summary": "Mild to moderate depression. Responding well to medication and therapy.",
+      "date": "2023-04-15"
+    }
+  ]
+}

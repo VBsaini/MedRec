@@ -9,24 +9,34 @@ const Visitor = require("./models/Visitor");
 
 const authRoutes = require("./routes/auth");
 const recordsRoutes = require("./routes/records");
+const reportsRoutes = require("./routes/reports");
 
 connectDB();
 
 // Enable CORS for all routes and origins (customize origin as needed)
 app.use(
   cors({
-    origin: `${process.env.FRONTEND_URL}` || "http://localhost:3000",
+    origin: `${process.env.FRONTEND_URL}` || "http://localhost:5000",
     credentials: true,
   })
 );
 
 app.use(express.json());
+// Ensure uploads directory exists
+const fs = require("fs");
+const path = require("path");
+const uploadsDir = path.join(__dirname, "../uploads/reports");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 app.use("/api/auth", authRoutes);
 app.use("/api/records", recordsRoutes);
+app.use("/api/reports", reportsRoutes);
 app.get("/", (req, res) => {
   res.send("Hello, MedRec!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(5000, () => {
+  console.log(`Server is running on port 5000`);
 });

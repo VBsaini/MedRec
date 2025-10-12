@@ -6,7 +6,109 @@ const FamilyHistory = require("../models/FamilyHistory");
 const EmergencyContact = require("../models/EmergencyContact");
 const Surgery = require("../models/Surgery");
 const Medication = require("../models/Medication");
+const Visitor = require("../models/Visitor");
 const router = express.Router();
+
+// Get user data by card_id (public access for medical records)
+router.get("/user/card/:cardId", async (req, res) => {
+  try {
+    const { cardId } = req.params;
+    const user = await User.findOne({ card_Id: cardId })
+      .populate("medical_history")
+      .populate("allergies")
+      .populate("family_history")
+      .populate("emergency_contact")
+      .populate("heart.surgeries")
+      .populate("heart.medications")
+      .populate("mental_health.medications");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return user data (excluding sensitive fields like password)
+    const { password, ...userData } = user.toObject();
+    res.json(userData);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Create visitor record
+router.post("/visitor", async (req, res) => {
+  try {
+    const { name, purpose, card_Id, ip_address, anonymous } = req.body;
+
+    // Find the user by card_Id to get user reference
+    const user = await User.findOne({ card_Id });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate unique visitor ID
+    const visitorId = `VIS${Date.now()}${Math.random()
+      .toString(36)
+      .substr(2, 4)}`;
+
+    const visitor = new Visitor({
+      name,
+      purpose,
+      Id: visitorId,
+      card_Id,
+      ip_address,
+      user: user._id,
+      anonymous,
+    });
+
+    await visitor.save();
+    res
+      .status(201)
+      .json({ message: "Visitor registered successfully", visitor });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error registering visitor", error: err.message });
+  }
+});
+
+// Get all visitors for a user (admin/user access)
+router.get("/visitors/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const visitors = await Visitor.find({ user: userId }).sort({
+      visitDate: -1,
+    });
+    res.json(visitors);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching visitors", error: err.message });
+  }
+});
+
+// Get user profile
+router.get("/user/:userId/profile", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId)
+      .populate("medical_history")
+      .populate("allergies")
+      .populate("family_history")
+      .populate("emergency_contact")
+      .populate("heart.surgeries")
+      .populate("heart.medications")
+      .populate("mental_health.medications");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
 // Get all available surgeries (for dropdown)
 router.get("/all-surgeries", async (req, res) => {
   try {
