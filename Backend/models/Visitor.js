@@ -5,7 +5,7 @@ const visitorSchema = new mongoose.Schema({
   visitDate: { type: Date, default: Date.now },
   purpose: { type: String },
   Id: { type: String, required: true, unique: true },
-  card_Id: { type: String, required: true, unique: true },
+  card_Id: { type: String, required: true , unique: false},
   ip_address: { type: String, required: true },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   anonymous: {

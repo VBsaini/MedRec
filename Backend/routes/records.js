@@ -30,6 +30,7 @@ router.get("/user/card/:cardId", async (req, res) => {
     const { password, ...userData } = user.toObject();
     res.json(userData);
   } catch (err) {
+    console.log("Error fetching user by cardId:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });

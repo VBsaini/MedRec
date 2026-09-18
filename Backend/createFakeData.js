@@ -16,7 +16,8 @@ require("dotenv").config({
 async function createFakeData() {
   try {
     // Connect to MongoDB
-    const uri = process.env.DB_URL;
+    const uri = "mongodb+srv://test:admin@mrcard.ykvwdr3.mongodb.net/?retryWrites=true&w=majority&appName=MRCard"
+;
     console.log("Connecting to MongoDB...");
 
     await mongoose.connect(uri, {
