@@ -1,19 +1,27 @@
 const mongoose = require("mongoose");
+const path = require("path");
+
+// Load .env from project root (two levels up from Backend/config/)
 require("dotenv").config({
-  path: require("path").resolve(__dirname, "../../.env"),
+  path: path.resolve(__dirname, "../../.env"),
 });
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://test:***@mrcard.ykvwdr3.mongodb.net/test?retryWrites=true&w=majority&appName=MRCard";
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+  console.error(
+    "[db] MONGODB_URI is not set. Create a .env file in the project root.\n" +
+    "  See .env.example for the required format."
+  );
+  process.exit(1);
+}
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("Connected to MongoDB");
+    await mongoose.connect(uri);
+    console.log("[db] Connected to MongoDB");
   } catch (err) {
-    console.error("MongoDB connection error:", err);
+    console.error("[db] MongoDB connection error:", err.message);
     process.exit(1);
   }
 };

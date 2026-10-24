@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const router = express.Router();
 
+// Prefer environment JWT secret
+const JWT_SECRET = process.env.JWT_SECRET || "secret";
+
 // Signup
 router.post("/signup", async (req, res) => {
   try {
@@ -39,23 +42,19 @@ router.post("/login", async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
-    const token = jwt.sign(
-      { userId: user._id },
-      "secret",
-      { expiresIn: "1d" }
-    );
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      expiresIn: "1d",
+    });
     res.json({ token });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-module.exports = router;
 // Get user and all their data by userId or alias
 router.get("/user/:identifier", async (req, res) => {
   try {
     const { identifier } = req.params;
-    // Try to find by ObjectId, else by alias
     let user = null;
     if (/^[0-9a-fA-F]{24}$/.test(identifier)) {
       user = await User.findById(identifier)
@@ -84,3 +83,5 @@ router.get("/user/:identifier", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
+module.exports = router;
