@@ -1,87 +1,81 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { requireAuth, signToken } = require("../middleware/auth");
+const { HttpError } = require("../middleware/errors");
+const { populateRecord } = require("../services/record");
 const router = express.Router();
 
-// Prefer environment JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || "secret";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ALIAS_RE = /^[a-zA-Z0-9_.-]{3,30}$/;
 
-// Signup
+const str = (v) => (typeof v === "string" ? v.trim() : "");
+
+// Signup — creates the account and logs the user in.
 router.post("/signup", async (req, res) => {
-  try {
-    const { email, password, name, alias } = req.body;
-    if (!email || !password || !name || !alias) {
-      return res
-        .status(400)
-        .json({ message: "Email, password, name, and alias are required." });
-    }
-    const existingUser = await User.findOne({ $or: [{ email }, { alias }] });
-    if (existingUser) {
-      return res.status(409).json({ message: "User or alias already exists." });
-    }
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new User({ email, password: hashedPassword, name, alias });
-    await user.save();
-    res.status(201).json({ message: "User created successfully." });
-  } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+  const body = req.body || {};
+  const email = str(body.email).toLowerCase();
+  const name = str(body.name);
+  const alias = str(body.alias);
+  const password = typeof body.password === "string" ? body.password : "";
+
+  if (!email || !password || !name || !alias) {
+    throw new HttpError(400, "Email, password, name, and alias are required.");
   }
+  if (!EMAIL_RE.test(email)) throw new HttpError(400, "Enter a valid email.");
+  if (!ALIAS_RE.test(alias)) {
+    throw new HttpError(
+      400,
+      "Alias must be 3-30 characters: letters, numbers, _ . -"
+    );
+  }
+  if (password.length < 8) {
+    throw new HttpError(400, "Password must be at least 8 characters.");
+  }
+
+  const existing = await User.findOne({ $or: [{ email }, { alias }] });
+  if (existing) {
+    throw new HttpError(
+      409,
+      existing.email === email
+        ? "An account with this email already exists."
+        : "That alias is taken."
+    );
+  }
+
+  const user = await User.create({
+    email,
+    name,
+    alias,
+    password: await bcrypt.hash(password, 12),
+  });
+  const saved = await populateRecord(User.findById(user._id));
+  res.status(201).json({ token: signToken(user._id), user: saved });
 });
 
 // Login
 router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials." });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials." });
-    }
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "1d",
-    });
-    res.json({ token });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+  const body = req.body || {};
+  const email = str(body.email).toLowerCase();
+  const password = typeof body.password === "string" ? body.password : "";
+  if (!email || !password) {
+    throw new HttpError(400, "Email and password are required.");
   }
+
+  const withPassword = await User.findOne({ email }).select("+password");
+  const ok =
+    withPassword && (await bcrypt.compare(password, withPassword.password));
+  if (!ok) throw new HttpError(401, "Invalid email or password.");
+
+  const user = await populateRecord(User.findById(withPassword._id));
+  res.json({ token: signToken(user._id), user });
 });
 
-// Get user and all their data by userId or alias
-router.get("/user/:identifier", async (req, res) => {
-  try {
-    const { identifier } = req.params;
-    let user = null;
-    if (/^[0-9a-fA-F]{24}$/.test(identifier)) {
-      user = await User.findById(identifier)
-        .populate("medical_history")
-        .populate("allergies")
-        .populate("family_history")
-        .populate("emergency_contact")
-        .populate({ path: "heart.surgeries", model: "Surgery" })
-        .populate({ path: "heart.medications", model: "Medication" })
-        .populate({ path: "mental_health.medications", model: "Medication" });
-    } else {
-      user = await User.findOne({ alias: identifier })
-        .populate("medical_history")
-        .populate("allergies")
-        .populate("family_history")
-        .populate("emergency_contact")
-        .populate({ path: "heart.surgeries", model: "Surgery" })
-        .populate({ path: "heart.medications", model: "Medication" })
-        .populate({ path: "mental_health.medications", model: "Medication" });
-    }
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+// Who am I — lets a client restore its session from a stored token.
+router.get("/me", requireAuth, async (req, res) => {
+  const user = await populateRecord(User.findById(req.userId));
+  if (!user) throw new HttpError(401, "Account no longer exists.");
+  res.json(user);
 });
 
 module.exports = router;

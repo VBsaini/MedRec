@@ -1,13 +1,21 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 
 const surgerySchema = new mongoose.Schema({
-  patientName: { type: String, required: true },
-  hospitalName: { type: String, required: true },
-  doctorName: { type: String, required: true },
   surgeryType: { type: String, required: true },
   surgeryDate: { type: Date, required: true },
+  hospitalName: { type: String },
+  doctorName: { type: String },
+  patientName: { type: String },
   details: { type: String },
-  recordNumber: { type: String, unique: true, required: true },
+  // Hospital record number if the patient has one; otherwise generated so the
+  // unique index always has a value.
+  recordNumber: {
+    type: String,
+    unique: true,
+    required: true,
+    default: () => `MR-${crypto.randomBytes(6).toString("hex").toUpperCase()}`,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
