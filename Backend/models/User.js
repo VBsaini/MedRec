@@ -1,26 +1,25 @@
 const mongoose = require("mongoose");
 
+const ref = (model) => ({ type: mongoose.Schema.Types.ObjectId, ref: model });
+
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
-  password: { type: String, required: true },
+  // Never returned by queries unless explicitly selected with "+password".
+  password: { type: String, required: true, select: false },
   alias: { type: String, unique: true, required: true },
   card_Id: { type: String, unique: true, sparse: true },
   name: { type: String },
-  age: { type: Number },
+  age: { type: Number, min: 0, max: 150 },
   gender: { type: String },
   blood_group: { type: String },
-  height: { type: Number },
-  weight: { type: Number },
-  medical_history: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "MedicalHistory",
-    },
-  ],
-  allergies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Allergy" }],
-  family_history: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "FamilyHistory" },
-  ],
+  height: { type: Number, min: 0 },
+  weight: { type: Number, min: 0 },
+  medical_history: [ref("MedicalHistory")],
+  allergies: [ref("Allergy")],
+  family_history: [ref("FamilyHistory")],
+  // The patient's own surgeries and medications.
+  surgeries: [ref("Surgery")],
+  medications: [ref("Medication")],
   diabetic: {
     status: { type: Boolean },
     type: { type: String },
@@ -29,22 +28,19 @@ const userSchema = new mongoose.Schema({
   heart: {
     status: { type: Boolean },
     details: { type: String },
-    surgeries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Surgery" }],
-    medications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Medication" }],
     since: { type: Date },
+    // Legacy: older records stored every surgery/medication here. New data
+    // goes in the top-level `surgeries` / `medications` lists.
+    surgeries: [ref("Surgery")],
+    medications: [ref("Medication")],
   },
   mental_health: {
     status: { type: Boolean },
     details: { type: String },
     since: { type: Date },
-    medications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Medication" }],
+    medications: [ref("Medication")], // legacy, see above
   },
-  emergency_contact: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "EmergencyContact",
-    },
-  ],
+  emergency_contact: [ref("EmergencyContact")],
   createdAt: { type: Date, default: Date.now },
 });
 

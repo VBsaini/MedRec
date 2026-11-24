@@ -16,7 +16,10 @@
   "main": "App",
   "scripts": {
     "start": "node App.js",
-    "dev": "nodemon App.js"
+    "dev": "nodemon App.js",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "node --test --test-reporter=spec \"tests/unit/**/*.test.js\"",
+    "test:integration": "node --test --test-reporter=spec --test-concurrency=1 \"tests/integration/**/*.test.js\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

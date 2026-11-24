@@ -1,95 +1,88 @@
-# MedRec Backend Database & API Routes Documentation
+# MedRec Backend: Data Model and API
 
-## Database Schema Overview
+## Data model
 
-### User
+### User (the patient)
 
-- `Id`: String, unique
-- `card_Id`: String, unique
-- `name`, `age`, `gender`, `blood_group`, `height`, `weight`: Basic info
-- `medical_history`: Array of ObjectIds (MedicalHistory)
-- `allergies`: Array of ObjectIds (Allergy)
-- `family_history`: Array of ObjectIds (FamilyHistory)
-- `diabetic`: { status, type, since }
-- `heart`: { status, details, surgeries (array of Surgery), medications (array of Medication), since }
-- `mental_health`: { status, details, since, medications (array of Medication) }
-- `emergency_contact`: Array of ObjectIds (EmergencyContact)
-- `createdAt`: Date
+- `email`, `alias`: unique, required. `password`: bcrypt hash, never returned by the API.
+- `card_Id`: UID of the linked RFID card (unique, optional).
+- `name`, `age`, `gender`, `blood_group`, `height` (cm), `weight` (kg).
+- `diabetic`: `{ status, type, since }`
+- `heart`: `{ status, details, since }`
+- `mental_health`: `{ status, details, since }`
+- Lists of references: `allergies`, `medications`, `surgeries`, `medical_history`, `family_history`, `emergency_contact`.
 
-### MedicalHistory
+Older records stored surgeries and medications under `heart.surgeries`, `heart.medications` and `mental_health.medications`. Those fields still exist and are still returned, but new entries go in the top-level `surgeries` and `medications` lists.
 
-- `past_illnesses`: String
-- `surgeries`: Array of ObjectIds (Surgery)
-- `medications`: Array of ObjectIds (Medication)
+### Record entries
 
-### Allergy
+| Model | Fields (required in bold) |
+|---|---|
+| Allergy | **allergens**, **reactions**, **severity** |
+| Medication | **name**, dosage, frequency, prescribedBy, prescribedFor, startDate, endDate |
+| Surgery | **surgeryType**, **surgeryDate**, hospitalName, doctorName, details (`recordNumber` and `patientName` are filled in by the server) |
+| MedicalHistory | **past_illnesses** |
+| FamilyHistory | **relationship**, **conditions** |
+| EmergencyContact | **name**, **phone_number**, relationship |
 
-- `allergens`, `reactions`, `severity`: String
+### Report
 
-### FamilyHistory
+- `user`, **`title`**, `description`, `date`
+- `category`: `lab_report`, `prescription`, `scan`, `discharge_summary` or `other`
+- `files`: `[{ _id, originalName, mimeType, size }]`
 
-- `relationship`, `conditions`: String
-- `medications`: Array of ObjectIds (Medication)
-- `surgeries`: Array of ObjectIds (Surgery)
+Uploaded files are saved under `uploads/reports/` with random names. They are not served statically; the only way to read one is the authenticated download route below.
 
-### EmergencyContact
+### Visitor
 
-- `name`, `phone_number`, `relationship`: String
+A log entry created when someone views a record by card: `name`, `purpose`, `card_Id`, `ip_address`, `visitDate`, `user`.
 
-### Surgery
+## API
 
-- `patientName`, `hospitalName`, `doctorName`, `surgeryType`, `surgeryDate`, `details`, `recordNumber`, `createdAt`
-
-### Medication
-
-- `name`, `dosage`, `frequency`, `prescribedBy`, `prescribedFor`, `startDate`, `endDate`
-
----
-
-## API Routes
+Routes marked **login** need an `Authorization: Bearer <token>` header and only ever act on the logged-in patient's own data. Errors are returned as `{ "message": "..." }`.
 
 ### Auth
 
-- `POST /api/auth/signup` — Register user (email, password required)
-- `POST /api/auth/login` — Login (returns JWT token)
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/api/auth/signup` | public | Body `{ name, alias, email, password }`. Returns `{ token, user }`. |
+| POST | `/api/auth/login` | public | Body `{ email, password }`. Returns `{ token, user }`. |
+| GET | `/api/auth/me` | login | The logged-in patient's full record. |
 
-### User Profile
+### My record
 
-- `POST /api/records/user/:id/profile` — Update user profile fields
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/me` | login | Full record with every list populated. |
+| PATCH | `/api/me/profile` | login | Update basic details and the `diabetic` / `heart` / `mental_health` sections. Unknown fields are ignored; `""` clears a field. |
+| PUT | `/api/me/card` | login | Body `{ card_Id }`. Links a card; an empty value unlinks it. |
+| GET | `/api/me/visitors` | login | Who has viewed the record by card. |
+| GET | `/api/me/:list` | login | Entries of one list. |
+| POST | `/api/me/:list` | login | Add an entry. |
+| PUT | `/api/me/:list/:id` | login | Edit an entry. |
+| DELETE | `/api/me/:list/:id` | login | Delete an entry. |
 
-### Medical History
+`:list` is one of `allergies`, `medications`, `surgeries`, `medical-history`, `family-history`, `emergency-contacts`.
 
-- `POST /api/records/medical-history/:userId` — Add medical history to user
+### Reports and files
 
-### Allergy
+Uploads are `multipart/form-data` with the files in a field named `files`. Allowed types are JPG, PNG, WEBP, HEIC and PDF, up to 10 files per report and 10 MB per file (`MAX_UPLOAD_MB`).
 
-- `POST /api/records/allergy/:userId` — Add allergy to user
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/api/reports` | login | Create a report. Fields: `title`, `category`, `date`, `description`, `files`. |
+| GET | `/api/reports` | login | My reports, newest first. |
+| GET | `/api/reports/:id` | login | One report. |
+| PATCH | `/api/reports/:id` | login | Edit title, category, date or description. |
+| DELETE | `/api/reports/:id` | login | Delete a report and its files. |
+| POST | `/api/reports/:id/files` | login | Add files to a report. |
+| GET | `/api/reports/:id/files/:fileId` | login | Download a file. |
+| DELETE | `/api/reports/:id/files/:fileId` | login | Delete one file. |
 
-### Family History
+### Card access (no login)
 
-- `POST /api/records/family-history/:userId` — Add family history to user
-
-### Emergency Contact
-
-- `POST /api/records/emergency-contact/:userId` — Add emergency contact to user
-
-### Surgery
-
-- `POST /api/records/surgery/:userId` — Add surgery to user's heart.surgeries
-
-### Medication
-
-- `POST /api/records/medication/:userId` — Add medication to user's heart and mental_health
-
----
-
-## Notes
-
-- All POST endpoints expect JSON bodies.
-- All `:userId` params should be the MongoDB ObjectId of the user.
-- Passwords are hashed with bcryptjs. Auth uses JWT.
-- You can extend the API with GET, PUT, DELETE as needed for your app.
-
----
-
-For more details, see the code in `/models` and `/routes` folders.
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/records/user/card/:cardId` | public | The record shown when a card is scanned. Excludes email, password and reports. |
+| POST | `/api/records/visitor` | public | Body `{ name, purpose, card_Id }`. Logs a visit. |
+| GET | `/api/health` | public | Health check. |

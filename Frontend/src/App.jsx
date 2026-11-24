@@ -96,6 +96,20 @@ function RecordView() {
 
   if (!user) return null
 
+  // Surgeries and medications live in top-level lists; older records kept
+  // them under heart / mental_health, so merge both and drop duplicates.
+  const unique = (items) =>
+    items.filter((v, i, a) => v && a.findIndex(x => x && x._id === v._id) === i)
+  const medications = unique([
+    ...(user.medications || []),
+    ...(user.heart?.medications || []),
+    ...(user.mental_health?.medications || []),
+  ])
+  const surgeries = unique([
+    ...(user.surgeries || []),
+    ...(user.heart?.surgeries || []),
+  ])
+
   return (
     <div className="page record-page">
       <div className="record-header">
@@ -143,20 +157,17 @@ function RecordView() {
       )}
 
       {/* Medications */}
-      {(user.heart?.medications?.length > 0 || user.mental_health?.medications?.length > 0) && (
+      {medications.length > 0 && (
         <section className="section">
           <h3>💊 Current Medications</h3>
           <div className="medication-list">
-            {[...(user.heart?.medications || []), ...(user.mental_health?.medications || [])]
-              .filter((v, i, a) => a.findIndex(m => m._id === v._id) === i)
-              .map((med, i) => (
-                <div key={i} className="med-card">
-                  <strong>{med.name}</strong>
-                  <span>{med.dosage} — {med.frequency}</span>
-                  <small>Prescribed by: {med.prescribedBy || 'Unknown'}</small>
-                </div>
-              ))
-            }
+            {medications.map((med, i) => (
+              <div key={i} className="med-card">
+                <strong>{med.name}</strong>
+                <span>{[med.dosage, med.frequency].filter(Boolean).join(' — ')}</span>
+                <small>Prescribed by: {med.prescribedBy || 'Unknown'}</small>
+              </div>
+            ))}
           </div>
         </section>
       )}
@@ -176,14 +187,14 @@ function RecordView() {
       )}
 
       {/* Surgeries */}
-      {user.heart?.surgeries?.length > 0 && (
+      {surgeries.length > 0 && (
         <section className="section">
           <h3>🏥 Surgeries</h3>
           <div className="surgery-list">
-            {user.heart.surgeries.map((s, i) => (
+            {surgeries.map((s, i) => (
               <div key={i} className="surgery-card">
                 <strong>{s.surgeryType}</strong>
-                <span>{s.hospitalName} — Dr. {s.doctorName}</span>
+                <span>{[s.hospitalName, s.doctorName].filter(Boolean).join(' — ')}</span>
                 <small>{new Date(s.surgeryDate).toLocaleDateString()}</small>
               </div>
             ))}

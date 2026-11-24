@@ -1,11 +1,10 @@
 .env
 node_modules
-uploads/reports/*.pdf
-uploads/reports/*.jpg
-uploads/reports/*.png
+uploads/
 *.log
 Frontend/dist
 myenv
 .venv
 MedRecApp/node_modules
 __pycache__/
+system-test/output/

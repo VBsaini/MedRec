@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const User = require("./models/User");
 const MedicalHistory = require("./models/MedicalHistory");
 const Allergy = require("./models/Allergy");
@@ -9,15 +9,13 @@ const EmergencyContact = require("./models/EmergencyContact");
 const FamilyHistory = require("./models/FamilyHistory");
 const Report = require("./models/Report");
 
-require("dotenv").config({
-  path: require("path").resolve(__dirname, "../.env"),
-});
+// Reads MONGODB_URI from the project-root .env file.
+const { mongoUri } = require("./config/env");
 
 async function createFakeData() {
   try {
     // Connect to MongoDB
-    const uri = "mongodb+srv://test:admin@mrcard.ykvwdr3.mongodb.net/?retryWrites=true&w=majority&appName=MRCard"
-;
+    const uri = mongoUri;
     console.log("Connecting to MongoDB...");
 
     await mongoose.connect(uri, {
@@ -211,6 +209,12 @@ async function createFakeData() {
         medications: [medications[2]._id],
         surgeries: [],
       },
+      {
+        relationship: "Father",
+        conditions: "Type 2 Diabetes",
+        medications: [],
+        surgeries: [],
+      },
     ]);
 
     // Create Medical History
@@ -256,6 +260,8 @@ async function createFakeData() {
         medical_history: [medicalHistories[0]._id],
         allergies: [allergies[0]._id, allergies[1]._id],
         family_history: [familyHistory[0]._id, familyHistory[1]._id],
+        surgeries: [surgeries[0]._id],
+        medications: [medications[0]._id, medications[3]._id],
         diabetic: {
           status: true,
           type: "Type 2",
@@ -272,7 +278,7 @@ async function createFakeData() {
           status: true,
           details: "Mild depression following major life changes",
           since: new Date("2023-02-01"),
-          medications: [medications[4]._id],
+          medications: [],
         },
         emergency_contact: [emergencyContacts[0]._id, emergencyContacts[1]._id],
       },
@@ -290,6 +296,8 @@ async function createFakeData() {
         medical_history: [medicalHistories[1]._id],
         allergies: [allergies[2]._id, allergies[4]._id],
         family_history: [familyHistory[2]._id],
+        surgeries: [surgeries[1]._id],
+        medications: [],
         diabetic: {
           status: false,
           type: null,
@@ -323,7 +331,9 @@ async function createFakeData() {
         weight: 78,
         medical_history: [medicalHistories[2]._id],
         allergies: [allergies[3]._id, allergies[5]._id],
-        family_history: [familyHistory[0]._id],
+        family_history: [familyHistory[3]._id],
+        surgeries: [surgeries[2]._id],
+        medications: [medications[4]._id],
         diabetic: {
           status: false,
           type: null,
